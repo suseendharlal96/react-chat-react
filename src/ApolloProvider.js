@@ -16,7 +16,7 @@ const httpLink = createHttpLink({
 });
 
 const wsLink = new WebSocketLink({
-  uri: "ws://react-graphqlnode-chat.herokuapp.com/graphql",
+  uri: "wss://react-graphqlnode-chat.herokuapp.com/graphql",
   options: {
     reconnect: true,
     connectionParams: {
