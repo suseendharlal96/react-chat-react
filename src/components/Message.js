@@ -1,50 +1,35 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-import { useLazyQuery, gql } from "@apollo/client";
+import dayjs from "dayjs";
 
-const Message = ({ username }) => {
-  useEffect(() => {
-    if (username) {
-      getMessages({ variables: { from: username } });
-    }
-  }, [username]);
+import { useAuthState } from "../context/authcontext";
 
-  const [
-    getMessages,
-    { loading: messageLoading, data: messageData },
-  ] = useLazyQuery(GET_MESSAGES);
+const Message = ({ message }) => {
+  const { user } = useAuthState();
+  console.log(user);
+  console.log(message);
+  const sentByLoggedUser = message.from === user.email;
+  const received = !sentByLoggedUser;
 
   return (
-    <div>
-      {!messageLoading ? (
-        messageData ? (
-          messageData.getMessages && messageData.getMessages.length > 0 ? (
-            messageData.getMessages.map((message) => (
-              <p key={message.uuid}>{message.content}</p>
-            ))
-          ) : (
-            <p>Start a conversation.Say Hi!</p>
-          )
-        ) : (
-          <p>Click an user to see the conversations</p>
-        )
-      ) : (
-        <p>Getting Messages..</p>
-      )}
+    <div className={`d-flex my-3 ${sentByLoggedUser ? "ml-auto" : "mr-auto"}`}>
+      <div
+        className={`py-2 px-3 rounded-pill ${
+          sentByLoggedUser ? "bg-primary" : "bg-light"
+        }`}
+      >
+        <p className={sentByLoggedUser ? "text-white" : ""} key={message.uuid}>
+          {message.content}
+        </p>
+        <p
+          className={` ${sentByLoggedUser ? "text-white" : ""}`}
+          style={{ float: "right" }}
+        >
+          {dayjs(message.createdAt).format("DD/MM/YY h:mm A")}
+        </p>
+      </div>
     </div>
   );
 };
-
-const GET_MESSAGES = gql`
-  query getMessages($from: String!) {
-    getMessages(from: $from) {
-      content
-      to
-      from
-      uuid
-      createdAt
-    }
-  }
-`;
 
 export default Message;

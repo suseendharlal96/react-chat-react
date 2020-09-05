@@ -12,7 +12,7 @@ const NavBar = (props) => {
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
-    window.location.href = "/";
+    window.location.href = "/auth";
   };
   return (
     <Navbar fixed="top" bg="primary" variant="dark">
@@ -20,9 +20,12 @@ const NavBar = (props) => {
         <Link to={user && user.username ? "/" : "/auth"}>
           <Button>Home</Button>
         </Link>
-        <Link to="/songs">
+        {/* <Link to="/songs">
           <Button>Songs</Button>
-        </Link>
+        </Link> */}
+        {/* <Link to="/upload">
+          <Button>upload</Button>
+        </Link> */}
       </Navbar.Brand>
       <Navbar.Toggle />
       <Navbar.Collapse className="justify-content-end">

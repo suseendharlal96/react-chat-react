@@ -3,10 +3,11 @@ import { Redirect } from "react-router-dom";
 
 import { gql, useQuery } from "@apollo/client";
 
-import { Row, Col, Image } from "react-bootstrap";
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import { Row, Col, Image, Gri } from "react-bootstrap";
 
 import Profile from "../assets/blank-profile.png";
-import Message from "../components/Message";
+import Messages from "../components/Messages";
 import { useAuthState, useAuthDispatch } from "../context/authcontext";
 
 const Home = () => {
@@ -22,7 +23,23 @@ const Home = () => {
 
   let userContent;
   if (!data || loading) {
-    userContent = <p>Loading..</p>;
+    userContent = Array.from({ length: 5 }).map((item, index) => (
+      <Row key={index} className="d-flex p-3">
+        <Col sm={12} md="auto">
+          <SkeletonTheme color="darkgray">
+            <Skeleton width={50} height={50} circle={true} />
+          </SkeletonTheme>
+        </Col>
+        <Col sm={12} md="auto">
+          <SkeletonTheme color="#ffc107">
+            <Skeleton width={65} height={10} />
+          </SkeletonTheme>
+          <SkeletonTheme color="#fff">
+            <Skeleton width={265} height={10} />
+          </SkeletonTheme>
+        </Col>
+      </Row>
+    ));
   } else if (data.getUsers.length === 0) {
     userContent = <p>No users have joined yet..</p>;
   } else {
@@ -39,10 +56,10 @@ const Home = () => {
         <Image
           src={user.imageUrl ? user.imageUrl : Profile}
           roundedCircle
-          className="mr-2 "
+          className="mr-2"
           style={{ width: 50, height: 50, objectFit: "cover" }}
         />
-        <div>
+        <div className="d-none d-md-block">
           <p className="text-warning">{user.username}</p>
           <p className="font-weight-light">
             {user.latestMessage
@@ -58,12 +75,20 @@ const Home = () => {
     <div>
       {user && user.username ? (
         <Row className="bg-white">
-          <Col xs={4} className="p-0 text-white users-section">
+          <Col xs={2} md={4} className="p-0 text-white users-section">
             {userContent}
           </Col>
-          <Col xs={8}>
+          <Col
+            style={{
+              backgroundColor: "lightblue",
+              height: "400px",
+              overflow: "auto",
+            }}
+            xs={10}
+            md={8}
+          >
             {data && data.getUsers.length > 0 && (
-              <Message username={username} />
+              <Messages username={username} />
             )}
           </Col>
         </Row>

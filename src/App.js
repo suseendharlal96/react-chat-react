@@ -6,6 +6,7 @@ import { Container } from "react-bootstrap";
 import AuthForm from "./pages/AuthForm";
 import Home from "./pages/Home";
 import NavBar from "./components/NavBar";
+import MyUpload from "./components/MyUpload";
 import "./App.scss";
 import { AuthProvider } from "./context/authcontext";
 import DynamicRoute from "./util/DynamicRoute";
@@ -24,6 +25,7 @@ const App = () => {
           <Switch>
             <DynamicRoute path="/" exact component={Home} authenticated />
             <DynamicRoute path="/auth" component={AuthForm} guest />
+            <Route path="/upload" component={MyUpload} />
             {/* <Route exact path="/songs" component={SongList} />
             <Route exact path="/songs/:id" component={SongDetail} /> */}
             <Suspense fallback={<div>Loading..</div>}>

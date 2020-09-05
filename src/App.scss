@@ -16,3 +16,53 @@ body {
 .selected-user {
   background-color: rgb(114, 185, 22);
 }
+
+// upload
+.dropzone {
+  height: 200px;
+  display: grid;
+  place-content: center;
+  margin: 20px auto;
+  border: dotted 2px gray;
+}
+
+.isActive {
+  background-color: #282c34;
+  color: white;
+}
+
+.thumb {
+  display: inline-flex;
+  border-radius: 2;
+  border: 1px solid #eaeaea;
+  margin-bottom: 8;
+  margin-right: 8;
+  max-width: 180px;
+  max-height: 250px;
+  padding: 4;
+  box-sizing: border-box;
+}
+
+.thumb-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 16 auto;
+}
+
+.thumb-inner {
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img {
+  display: block;
+  width: 100%;
+}
+
+.hidden {
+  display: none;
+}
