@@ -13,7 +13,7 @@ import { useAuthState, useAuthDispatch } from "../context/authcontext";
 const Home = () => {
   const { user } = useAuthState();
 
-  const [username, setUsername] = useState(null);
+  const [selectedUser, setUser] = useState(null);
 
   const { loading, data, error } = useQuery(GET_USERS);
 
@@ -46,9 +46,11 @@ const Home = () => {
     userContent = data.getUsers.map((user, index) => (
       <div
         role="button"
-        onClick={() => setUsername(user.username)}
+        onClick={() => setUser(user)}
         className={`user-content d-flex p-3 ${
-          username === user.username ? "selected-user" : ""
+          selectedUser && selectedUser.username === user.username
+            ? "selected-user"
+            : ""
         }`}
         style={{ borderBottom: "1px solid black" }}
         key={index}
@@ -81,14 +83,13 @@ const Home = () => {
           <Col
             style={{
               backgroundColor: "lightblue",
-              height: "400px",
-              overflow: "auto",
+              minWidth: "400px",
             }}
             xs={10}
             md={8}
           >
             {data && data.getUsers.length > 0 && (
-              <Messages username={username} />
+              <Messages user={selectedUser} />
             )}
           </Col>
         </Row>
