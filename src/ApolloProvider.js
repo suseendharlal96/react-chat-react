@@ -4,7 +4,7 @@ import {
   ApolloClient,
   split,
   InMemoryCache,
-  createHttpLink,
+  HttpLink,
   ApolloProvider as Provider,
 } from "@apollo/client";
 import { createUploadLink } from "apollo-upload-client";
@@ -12,16 +12,16 @@ import { getMainDefinition } from "@apollo/client/utilities";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { setContext } from "@apollo/client/link/context";
 
-const httpLink = createUploadLink({
-  uri: "https://react-graphqlnode-chat.herokuapp.com/",
+const httpLink = new HttpLink({
+  uri: "http://react-graphqlnode-chat.herokuapp/",
 });
 
 const wsLink = new WebSocketLink({
-  uri: "wss://react-graphqlnode-chat.herokuapp.com/graphql",
+  uri: "wss://react-graphqlnode-chat.herokuapp/graphql",
   options: {
     reconnect: true,
     connectionParams: {
-      authToken: localStorage.getItem("token"),
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   },
 });

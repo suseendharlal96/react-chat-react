@@ -6,8 +6,6 @@ import { useAuthState } from "../context/authcontext";
 
 const Message = ({ message }) => {
   const { user } = useAuthState();
-  console.log(user);
-  console.log(message);
   const sentByLoggedUser = message.from === user.email;
   const received = !sentByLoggedUser;
 

@@ -1,28 +1,77 @@
 import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
 
-import { gql, useQuery } from "@apollo/client";
+import { gql, useQuery, useSubscription } from "@apollo/client";
 
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
-import { Row, Col, Image, Gri } from "react-bootstrap";
+import { Row, Col, Image } from "react-bootstrap";
 
 import Profile from "../assets/blank-profile.png";
 import Messages from "../components/Messages";
-import { useAuthState, useAuthDispatch } from "../context/authcontext";
+import { useAuthState } from "../context/authcontext";
+
+export const MESSAGE_SENT = gql`
+  subscription messageSent {
+    messageSent {
+      uuid
+      content
+      to
+      from
+      createdAt
+    }
+  }
+`;
 
 const Home = () => {
   const { user } = useAuthState();
-
+  const [userData, setUserData] = useState(null);
   const [selectedUser, setUser] = useState(null);
+  const [messageData, setMessageData] = useState("");
 
-  const { loading, data, error } = useQuery(GET_USERS);
-
-  if (error) {
-    console.log(error);
+  const { data: subsData, error: subsErr } = useSubscription(MESSAGE_SENT);
+  if (subsData) {
+    console.log(subsData);
   }
+  if (subsErr) {
+    console.log(subsErr);
+  }
+  useEffect(() => {
+    if (subsErr) {
+      console.log(subsErr);
+    }
+    if (subsData) {
+      const a = [...messageData];
+      a.unshift(subsData.messageSent);
+      setMessageData(a);
+      // setMyMessage("");
+      const b = {
+        ...selectedUser,
+        latestMessage: subsData.messageSent.content,
+      };
+      selectUser(b);
+    }
+  }, [subsData]);
+
+  const { loading, data, error } = useQuery(GET_USERS, {
+    onCompleted(data) {
+      setUserData(data && data.getUsers);
+    },
+  });
+
+  const selectUser = (user) => {
+    setUser(user);
+  };
+
+  const setSelectedMessage = (msg) => {
+    console.log("msg", msg);
+    console.log("msgData", messageData);
+    // const a = [...messageData];
+    // a.unshift(msg);
+    setMessageData(msg);
+  };
 
   let userContent;
-  if (!data || loading) {
+  if (!userData || loading) {
     userContent = Array.from({ length: 5 }).map((item, index) => (
       <Row key={index} className="d-flex p-3">
         <Col sm={12} md="auto">
@@ -40,13 +89,13 @@ const Home = () => {
         </Col>
       </Row>
     ));
-  } else if (data.getUsers.length === 0) {
+  } else if (userData.length === 0) {
     userContent = <p>No users have joined yet..</p>;
   } else {
-    userContent = data.getUsers.map((user, index) => (
+    userContent = userData.map((user, index) => (
       <div
         role="button"
-        onClick={() => setUser(user)}
+        onClick={() => selectUser(user)}
         className={`user-content d-flex p-3 ${
           selectedUser && selectedUser.username === user.username
             ? "selected-user"
@@ -89,7 +138,11 @@ const Home = () => {
             md={8}
           >
             {data && data.getUsers.length > 0 && (
-              <Messages user={selectedUser} />
+              <Messages
+                user={selectedUser}
+                messageData={messageData}
+                setMessageData={(data) => setSelectedMessage(data)}
+              />
             )}
           </Col>
         </Row>
