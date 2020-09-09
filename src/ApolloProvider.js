@@ -13,7 +13,7 @@ import { WebSocketLink } from "@apollo/client/link/ws";
 import { setContext } from "@apollo/client/link/context";
 
 const httpLink = new HttpLink({
-  uri: "http://react-graphqlnode-chat.herokuapp/",
+  uri: "https://react-graphqlnode-chat.herokuapp/",
 });
 
 const wsLink = new WebSocketLink({
