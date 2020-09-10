@@ -8,7 +8,7 @@ import { Row, Col, Image } from "react-bootstrap";
 
 import Profile from "../assets/blank-profile.png";
 import Messages from "../components/Messages";
-import { useAuthState } from "../context/authcontext";
+import { useAuthState, useAuthDispatch } from "../context/authcontext";
 
 export const MESSAGE_SENT = gql`
   subscription messageSent {
@@ -23,7 +23,8 @@ export const MESSAGE_SENT = gql`
 `;
 
 const Home = () => {
-  const { user } = useAuthState();
+  const { user: loggedUser } = useAuthState();
+  console.log(loggedUser);
   const [userData, setUserData] = useState(null);
   const [selectedUser, setUser] = useState(null);
   const [messageData, setMessageData] = useState("");
@@ -40,15 +41,49 @@ const Home = () => {
       console.log(subsErr);
     }
     if (subsData) {
-      const a = [...messageData];
-      a.unshift(subsData.messageSent);
-      setMessageData(a);
-      // setMyMessage("");
-      const b = {
-        ...selectedUser,
-        latestMessage: subsData.messageSent.content,
-      };
-      selectUser(b);
+      console.log(loggedUser.email);
+      console.log(selectedUser.email);
+      if (
+        (subsData.messageSent.from === loggedUser.email &&
+          subsData.messageSent.to === selectedUser.email) ||
+        (subsData.messageSent.from === selectedUser.email &&
+          subsData.messageSent.to === loggedUser.email)
+      ) {
+        const currentusermsgIndex = messageData.findIndex(
+          (u) => u.to === selectedUser.email || u.from === selectedUser.email
+        );
+        const a = [...messageData];
+        if (currentusermsgIndex !== -1) {
+          a.unshift(subsData.messageSent);
+        }
+        setMessageData(a);
+
+        const currentuserIndex = userData.findIndex(
+          (u) => u.email === selectedUser.email
+        );
+        const receiverIndex = userData.findIndex(
+          (u) => u.email === subsData.messageSent.to.email
+        );
+        const userDataCopy = [...userData];
+        const currentUser = {
+          ...userDataCopy[currentuserIndex],
+          latestMessage: subsData.messageSent,
+        };
+        const currentReceiver = {
+          ...userDataCopy[receiverIndex],
+          latestMessage: subsData.messageSent,
+        };
+        userDataCopy[currentuserIndex] = currentUser;
+        setUserData(userDataCopy);
+        userDataCopy[receiverIndex] = currentReceiver;
+        setUserData(userDataCopy);
+      }
+      // console.log(userDataCopy[currentuserIndex].latestMessage.content);
+      // const k = subsData.messageSent.content;
+      // console.log(k);
+      // let l = userDataCopy[currentuserIndex].latestMessage.content
+      // {...userDataCopy[currentuserIndex],latestMessage=subsData.messageSent}
+      // l = k;
     }
   }, [subsData]);
 
@@ -64,10 +99,10 @@ const Home = () => {
 
   const setSelectedMessage = (msg) => {
     console.log("msg", msg);
-    console.log("msgData", messageData);
     // const a = [...messageData];
     // a.unshift(msg);
     setMessageData(msg);
+    console.log("msgData", messageData);
   };
 
   let userContent;
@@ -112,10 +147,22 @@ const Home = () => {
         />
         <div className="d-none d-md-block">
           <p className="text-warning">{user.username}</p>
-          <p className="font-weight-light">
-            {user.latestMessage
-              ? user.latestMessage.content
-              : "You are now connected"}
+          <p style={{ wordBreak: "break-all" }} className="font-weight-light">
+            {user.latestMessage ? (
+              user.latestMessage.content &&
+              user.latestMessage.from === loggedUser.email ? (
+                <>
+                  {user.latestMessage.content}
+                  <span style={{ marginLeft: "25px", color: "lawngreen" }}>
+                    <i class="fa fa-check" aria-hidden="true"></i>
+                  </span>
+                </>
+              ) : (
+                user.latestMessage.content
+              )
+            ) : (
+              "You are now connected"
+            )}
           </p>
         </div>
       </div>
@@ -124,7 +171,7 @@ const Home = () => {
 
   return (
     <div>
-      {user && user.username ? (
+      {loggedUser && loggedUser.username ? (
         <Row className="bg-white">
           <Col xs={2} md={4} className="p-0 text-white users-section">
             {userContent}
@@ -161,6 +208,7 @@ const GET_USERS = gql`
       imageUrl
       latestMessage {
         content
+        from
       }
     }
   }
