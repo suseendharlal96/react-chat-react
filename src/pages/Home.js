@@ -8,7 +8,7 @@ import { Row, Col, Image } from "react-bootstrap";
 
 import Profile from "../assets/blank-profile.png";
 import Messages from "../components/Messages";
-import { useAuthState, useAuthDispatch } from "../context/authcontext";
+import { useAuthState } from "../context/authcontext";
 
 export const MESSAGE_SENT = gql`
   subscription messageSent {
@@ -24,29 +24,23 @@ export const MESSAGE_SENT = gql`
 
 const Home = () => {
   const { user: loggedUser } = useAuthState();
-  console.log(loggedUser);
   const [userData, setUserData] = useState(null);
   const [selectedUser, setUser] = useState(null);
   const [messageData, setMessageData] = useState("");
 
   const { data: subsData, error: subsErr } = useSubscription(MESSAGE_SENT);
   if (subsData) {
-    console.log(subsData);
   }
   if (subsErr) {
-    console.log(subsErr);
   }
   useEffect(() => {
     if (subsErr) {
-      console.log(subsErr);
     }
     if (subsData) {
-      console.log(loggedUser.email);
-      console.log(selectedUser.email);
       if (
         (subsData.messageSent.from === loggedUser.email &&
-          subsData.messageSent.to === selectedUser.email) ||
-        (subsData.messageSent.from === selectedUser.email &&
+          subsData.messageSent.to === (selectedUser && selectedUser.email)) ||
+        (subsData.messageSent.from === (selectedUser && selectedUser.email) &&
           subsData.messageSent.to === loggedUser.email)
       ) {
         const currentusermsgIndex = messageData.findIndex(
@@ -55,35 +49,37 @@ const Home = () => {
         const a = [...messageData];
         if (currentusermsgIndex !== -1) {
           a.unshift(subsData.messageSent);
+          setMessageData(a);
+        } else if (messageData.length === 0) {
+          a.unshift(subsData.messageSent);
+          setMessageData(a);
         }
-        setMessageData(a);
-
-        const currentuserIndex = userData.findIndex(
-          (u) => u.email === selectedUser.email
-        );
-        const receiverIndex = userData.findIndex(
-          (u) => u.email === subsData.messageSent.to.email
-        );
-        const userDataCopy = [...userData];
-        const currentUser = {
-          ...userDataCopy[currentuserIndex],
-          latestMessage: subsData.messageSent,
-        };
-        const currentReceiver = {
-          ...userDataCopy[receiverIndex],
-          latestMessage: subsData.messageSent,
-        };
-        userDataCopy[currentuserIndex] = currentUser;
-        setUserData(userDataCopy);
-        userDataCopy[receiverIndex] = currentReceiver;
-        setUserData(userDataCopy);
       }
-      // console.log(userDataCopy[currentuserIndex].latestMessage.content);
-      // const k = subsData.messageSent.content;
-      // console.log(k);
-      // let l = userDataCopy[currentuserIndex].latestMessage.content
-      // {...userDataCopy[currentuserIndex],latestMessage=subsData.messageSent}
-      // l = k;
+
+      const senderIndex = userData.findIndex(
+        (u) => u.email === subsData.messageSent.to
+      );
+      const userSenderCopy = [...userData];
+      if (senderIndex !== -1) {
+        const currentSender = {
+          ...userSenderCopy[senderIndex],
+          latestMessage: subsData.messageSent,
+        };
+        userSenderCopy[senderIndex] = currentSender;
+        setUserData(userSenderCopy);
+      }
+      const receiverIndex = userData.findIndex(
+        (u) => u.email === subsData.messageSent.from
+      );
+      const userReceiverCopy = [...userData];
+      if (receiverIndex !== -1) {
+        const currentReceiver = {
+          ...userReceiverCopy[receiverIndex],
+          latestMessage: subsData.messageSent,
+        };
+        userReceiverCopy[receiverIndex] = currentReceiver;
+        setUserData(userReceiverCopy);
+      }
     }
   }, [subsData]);
 
@@ -98,11 +94,9 @@ const Home = () => {
   };
 
   const setSelectedMessage = (msg) => {
-    console.log("msg", msg);
     // const a = [...messageData];
     // a.unshift(msg);
     setMessageData(msg);
-    console.log("msgData", messageData);
   };
 
   let userContent;
@@ -154,7 +148,7 @@ const Home = () => {
                 <>
                   {user.latestMessage.content}
                   <span style={{ marginLeft: "25px", color: "lawngreen" }}>
-                    <i class="fa fa-check" aria-hidden="true"></i>
+                    <i className="fa fa-check" aria-hidden="true"></i>
                   </span>
                 </>
               ) : (

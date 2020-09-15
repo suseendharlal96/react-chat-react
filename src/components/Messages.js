@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import {
-  useLazyQuery,
-  gql,
-  useMutation,
-} from "@apollo/client";
+import { useLazyQuery, gql, useMutation } from "@apollo/client";
 
 import { Form } from "react-bootstrap";
 
@@ -14,27 +10,12 @@ import Message from "./Message";
 
 const Messages = ({ user, messageData, setMessageData }) => {
   const [myMessage, setMyMessage] = useState("");
-  // const [messageData, setMessageData] = useState("");
 
   useEffect(() => {
-    console.log(messageData);
-    console.log(user);
     if (user) {
       getMessages({ variables: { from: user.username } });
     }
   }, [user]);
-
-  // useEffect(() => {
-  //   if (subsErr) {
-  //     console.log(subsErr);
-  //   }
-  //   if (subsData) {
-  //     const a = [...messageData];
-  //     a.unshift(subsData.sentMessage);
-  //     setMessageData(a);
-  //     setMyMessage("");
-  //   }
-  // }, []);
 
   const [getMessages, { loading: messageLoading, data }] = useLazyQuery(
     GET_MESSAGES,
@@ -47,9 +28,6 @@ const Messages = ({ user, messageData, setMessageData }) => {
 
   const [sendMessage] = useMutation(SEND_MESSAGE, {
     update(_, res) {
-      //   const a = [...messageData];
-      //   a.unshift(res.data.sendMessage);
-      //   setMessageData(a);
       setMyMessage("");
     },
     onError(err) {
