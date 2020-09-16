@@ -132,6 +132,10 @@ const GET_MESSAGES = gql`
       from
       uuid
       createdAt
+      reactions {
+        uuid
+        content
+      }
     }
   }
 `;

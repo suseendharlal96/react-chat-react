@@ -17,6 +17,31 @@ body {
   background-color: rgb(114, 185, 22);
 }
 
+.btn:focus {
+  box-shadow: none;
+}
+
+.react-popover {
+  height: 25px;
+}
+
+.react-btn {
+  padding: 0 0.25rem;
+  transition: 0.25s;
+  font-size: 1rem;
+  &:hover {
+    font-size: 1.5rem;
+    text-decoration: none;
+  }
+}
+
+.reactions-container {
+  position: absolute;
+  right: -10px;
+  bottom: -25px;
+  font-size: 0.9rem;
+}
+
 // upload
 .dropzone {
   height: 200px;

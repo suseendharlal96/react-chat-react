@@ -18,6 +18,26 @@ export const MESSAGE_SENT = gql`
       to
       from
       createdAt
+      reactions {
+        uuid
+        content
+      }
+    }
+  }
+`;
+export const MESSAGE_REACTED = gql`
+  subscription reacted {
+    reacted {
+      uuid
+      content
+      message {
+        from
+        uuid
+        to
+      }
+      user {
+        id
+      }
     }
   }
 `;
@@ -29,13 +49,12 @@ const Home = () => {
   const [messageData, setMessageData] = useState("");
 
   const { data: subsData, error: subsErr } = useSubscription(MESSAGE_SENT);
+  const { data: reactData, error: reactErr } = useSubscription(MESSAGE_REACTED);
   if (subsData) {
   }
-  if (subsErr) {
+  if (reactErr) {
   }
   useEffect(() => {
-    if (subsErr) {
-    }
     if (subsData) {
       if (
         (subsData.messageSent.from === loggedUser.email &&
@@ -82,6 +101,51 @@ const Home = () => {
       }
     }
   }, [subsData]);
+
+  useEffect(() => {
+    if (reactData) {
+      if (
+        (reactData.reacted.message.from === loggedUser.email &&
+          reactData.reacted.message.to ===
+            (selectedUser && selectedUser.email)) ||
+        (reactData.reacted.message.from ===
+          (selectedUser && selectedUser.email) &&
+          reactData.reacted.message.to === loggedUser.email)
+      ) {
+        const a = [...messageData];
+        const mIndex = a.findIndex(
+          (m) => m.uuid === reactData.reacted.message.uuid
+        );
+        const rIndex = a[mIndex].reactions.findIndex(
+          (r) => r.uuid === reactData.reacted.uuid
+        );
+        if (a[mIndex].reactions.length === 0) {
+          a[mIndex] = {
+            ...a[mIndex],
+            reactions: [
+              {
+                content: reactData.reacted.content,
+                uuid: reactData.reacted.uuid,
+              },
+            ],
+          };
+          // setMessageData(a);
+        } else {
+          let reactionsCopy = [...a[mIndex].reactions];
+          if (rIndex >= 0) {
+            reactionsCopy[rIndex] = reactData.reacted;
+          } else {
+            reactionsCopy = [...reactionsCopy, reactData.reacted];
+          }
+          a[mIndex] = {
+            ...a[mIndex],
+            reactions: reactionsCopy,
+          };
+        }
+        setMessageData(a);
+      }
+    }
+  }, [reactData]);
 
   const { loading, data, error } = useQuery(GET_USERS, {
     onCompleted(data) {
