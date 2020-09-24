@@ -13,11 +13,11 @@ import { WebSocketLink } from "@apollo/client/link/ws";
 import { setContext } from "@apollo/client/link/context";
 
 const httpLink = new HttpLink({
-  uri: "http://localhost:5000/graphql",
+  uri: "https://react-graphqlnode-chat.herokuapp.com/graphql",
 });
 
 const wsLink = new WebSocketLink({
-  uri: "ws://localhost:5000/graphql",
+  uri: "wss://react-graphqlnode-chat.herokuapp.com/graphql",
   options: {
     reconnect: true,
     connectionParams: {
@@ -51,7 +51,7 @@ const splitLink = split(
 );
 
 const uploadLink = createUploadLink({
-  uri: "http://localhost:5000/graphql",
+  uri: "https://react-graphqlnode-chat.herokuapp.com/graphql",
 });
 
 const client = new ApolloClient({
