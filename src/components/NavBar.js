@@ -47,7 +47,7 @@ const NavBar = (props) => {
       <Navbar.Collapse className="justify-content-end">
         {user && user.username ? (
           <>
-            <input type="file" onChange={fileChangeHandler} />
+            {/* <input type="file" onChange={fileChangeHandler} /> */}
             <Button onClick={logout}>Logout</Button>
             <Image
               src={image ? image : user.imageUrl ? user.imageUrl : Profile}
